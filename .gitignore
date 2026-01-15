@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+.venv/
+**/.venv/
+
+# Packaging/build
+build/
+dist/
+**/build/
+**/dist/
+
+# Node
+node_modules/
+**/node_modules/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+**/.DS_Store
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Outputs
+out/
+**/out/
+*.pdf
+
+# Archives
+*.zip
+
+# Env files
+.env
+.env.*
