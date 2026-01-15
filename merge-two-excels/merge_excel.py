@@ -67,17 +67,17 @@ def resolve_default_template(project_root):
 
 
 def resolve_latest_raw_data(project_root):
-    data_dir = project_root / "data"
-    if not data_dir.exists():
-        raise FileNotFoundError(f"data directory not found: {data_dir}")
+    out_dir = project_root / "out"
+    if not out_dir.exists():
+        raise FileNotFoundError(f"out directory not found: {out_dir}")
 
     candidates = sorted(
-        data_dir.glob("*raw.xlsx"),
+        out_dir.glob("*raw.xlsx"),
         key=lambda path: path.stat().st_mtime,
         reverse=True,
     )
     if not candidates:
-        raise FileNotFoundError(f"no *raw.xlsx files found in {data_dir}")
+        raise FileNotFoundError(f"no *raw.xlsx files found in {out_dir}")
 
     return candidates[0]
 
