@@ -53,21 +53,51 @@ def build_output_path(outdir, prefix):
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(description="Merge data into an Excel template sheet.")
-    parser.add_argument("--template", required=True, help="Path to template .xlsx")
-    parser.add_argument("--data", required=True, help="Path to data .xlsx")
-    parser.add_argument("--outdir", default=".", help="Output directory (default: current directory)")
+    parser.add_argument("--template", default=None, help="Path to template .xlsx")
+    parser.add_argument("--data", default=None, help="Path to data .xlsx")
+    parser.add_argument("--outdir", default=None, help="Output directory (default: ../out)")
     parser.add_argument("--sheet", default="data", help="Target sheet name in template (default: data)")
     parser.add_argument("--prefix", default="", help="Output filename prefix (default: empty)")
     parser.add_argument("--dry-run", action="store_true", help="Validate and print actions without writing output")
     return parser.parse_args(argv)
 
 
+def resolve_default_template(project_root):
+    return project_root / "template.xlsx"
+
+
+def resolve_latest_raw_data(project_root):
+    data_dir = project_root / "data"
+    if not data_dir.exists():
+        raise FileNotFoundError(f"data directory not found: {data_dir}")
+
+    candidates = sorted(
+        data_dir.glob("*raw.xlsx"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+    if not candidates:
+        raise FileNotFoundError(f"no *raw.xlsx files found in {data_dir}")
+
+    return candidates[0]
+
+
+def resolve_default_outdir(project_root):
+    return project_root / "out"
+
+
 def main(argv):
     args = parse_args(argv)
 
-    template_path = Path(args.template)
-    data_path = Path(args.data)
-    outdir = Path(args.outdir)
+    project_root = Path(__file__).resolve().parent.parent
+
+    try:
+        template_path = Path(args.template) if args.template else resolve_default_template(project_root)
+        data_path = Path(args.data) if args.data else resolve_latest_raw_data(project_root)
+        outdir = Path(args.outdir) if args.outdir else resolve_default_outdir(project_root)
+    except FileNotFoundError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
     try:
         template_wb = load_workbook(template_path)
